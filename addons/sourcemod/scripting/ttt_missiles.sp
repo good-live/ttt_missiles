@@ -148,9 +148,8 @@ public void OnMapStart()
 
 public void OnEntityCreated(int entity, const char[] classname)
 {
-	if (StrEqual(classname, "weapon_hegrenade", false))
+	if (StrEqual(classname, "hegrenade_projectile", false))
 	{
-		
 		HookSingleEntityOutput(entity, "OnUser2", InitMissile, true);
 		
 		char OutputString[50] = "OnUser1 !self:FireUser2::0.0:1";
@@ -173,10 +172,13 @@ public int InitMissile(const char[] output, int caller, int activator, float del
 		return;
 		
 	if(g_iMissile_F[NadeOwner])
+	{
+		g_iMissile_F[NadeOwner]--;
 		g_iType[NadeOwner] = 1;
-	else
+	}else{
+		g_iMissile[NadeOwner]--;
 		g_iType[NadeOwner] = 0;
-	
+	}
 	char sModel[PLATFORM_MAX_PATH];
 	g_cModel.GetString(sModel, sizeof(sModel));
 	// stop the projectile thinking so it doesn't detonate.
@@ -348,6 +350,8 @@ void CreateExplosion(int entity)
 	int MissileOwner = GetEntPropEnt(entity, Prop_Send, "m_hThrower");
 	int MissileOwnerTeam = GetEntProp(entity, Prop_Send, "m_iTeamNum");
 	
+	g_iType[MissileOwner] = -1;
+	
 	int ExplosionIndex = CreateEntityByName("env_explosion");
 	if (ExplosionIndex != -1)
 	{
@@ -388,28 +392,38 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 {
 	if(TTT_IsClientValid(client) && IsPlayerAlive(client))
 	{
+		bool giveNade = false;
 		if((StrEqual(itemshort, SHORT_NAME_T, false) && g_iPAmount[client] < g_cAmountT.IntValue) || 
 		(StrEqual(itemshort, SHORT_NAME_D, false) && g_iPAmount[client] < g_cAmountD.IntValue) || 
 		(StrEqual(itemshort, SHORT_NAME_I, false) && g_iPAmount[client] < g_cAmountI.IntValue))
 		{
 			g_iMissile[client]++;
+			g_iPAmount[client]++;
+			giveNade = true;
 		}else if((StrEqual(itemshort, SHORT_NAMEF_T, false) && g_iPAmount_F[client] < g_cAmountT_F.IntValue) || 
 		(StrEqual(itemshort, SHORT_NAMEF_D, false) && g_iPAmount_F[client] < g_cAmountD_F.IntValue) || 
 		(StrEqual(itemshort, SHORT_NAMEF_I, false) && g_iPAmount_F[client] < g_cAmountI_F.IntValue))
 		{
 			g_iMissile_F[client]++;
+			g_iPAmount_F[client]++;
+			giveNade = true;
 		}
 		
-		int AmmoReserve = GetEntProp(client, Prop_Send, "m_iAmmo", 4, 11);
-		
-		if (!AmmoReserve)
+		if(giveNade)
 		{
-			GivePlayerItem(client, "weapon_hegrenade");
-		}
-		
-		if (AmmoReserve)
-		{
-			SetEntProp(client, Prop_Send, "m_iAmmo", g_iMissile[client] + g_iMissile_F[client], 4, 11);
+			int AmmoReserve = GetEntProp(client, Prop_Send, "m_iAmmo", 4, 11);
+			
+			if (!AmmoReserve)
+			{
+				GivePlayerItem(client, "weapon_hegrenade");
+			}
+			
+			if (AmmoReserve)
+			{
+				SetEntProp(client, Prop_Send, "m_iAmmo", g_iMissile[client] + g_iMissile_F[client], 4, 11);
+			}
+		}else{
+			return Plugin_Stop;
 		}
 	}
 	return Plugin_Continue;
