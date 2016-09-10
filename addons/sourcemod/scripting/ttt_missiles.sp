@@ -6,11 +6,11 @@
 #define PLUGIN_VERSION "1.00"
 
 #define SHORT_NAME_T "mi_t"
-#define SHORT_NAME_D "mi_awp_d"
-#define SHORT_NAME_I "mi_awp_i"
+#define SHORT_NAME_D "mi_d"
+#define SHORT_NAME_I "mi_i"
 #define SHORT_NAMEF_T "mif_t"
-#define SHORT_NAMEF_D "mif_awp_d"
-#define SHORT_NAMEF_I "mif_awp_i"
+#define SHORT_NAMEF_D "mif_d"
+#define SHORT_NAMEF_I "mif_i"
 
 #define SOLID_NONE 0
 #define FSOLID_NOT_SOLID 0x0004
@@ -274,6 +274,8 @@ public void MissileThink(const char[] output, int caller, int activator, float d
 		{
 			if (IsClientInGame(i) && IsPlayerAlive(i))
 			{
+				if(TTT_GetClientRole(i) == TTT_TEAM_TRAITOR)
+					continue;
 				float EnemyPos[3];
 				GetClientEyePosition(i, EnemyPos);
 				TR_TraceHullFilter(NadePos, EnemyPos, g_fMinNadeHull, g_fMaxNadeHull, MASK_SOLID, DontHitOwnerOrNade, caller);
