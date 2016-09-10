@@ -25,7 +25,7 @@
 
 public Plugin myinfo = 
 {
-	name = "TTT - ´Missiles",
+	name = "TTT - Missiles",
 	author = PLUGIN_AUTHOR,
 	description = "Allows you to buy a Missile",
 	version = PLUGIN_VERSION,
