@@ -409,6 +409,8 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 			g_iMissile_F[client]++;
 			g_iPAmount_F[client]++;
 			giveNade = true;
+		}else{
+			return Plugin_Stop;
 		}
 		
 		if(giveNade)
@@ -424,8 +426,6 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 			{
 				SetEntProp(client, Prop_Send, "m_iAmmo", g_iMissile[client] + g_iMissile_F[client], 4, 11);
 			}
-		}else{
-			return Plugin_Stop;
 		}
 	}
 	return Plugin_Continue;
