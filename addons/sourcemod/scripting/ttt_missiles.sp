@@ -409,8 +409,6 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 			g_iMissile_F[client]++;
 			g_iPAmount_F[client]++;
 			giveNade = true;
-		}else{
-			return Plugin_Stop;
 		}
 		
 		if(giveNade)
