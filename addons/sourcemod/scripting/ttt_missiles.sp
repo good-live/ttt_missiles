@@ -424,9 +424,10 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 			{
 				SetEntProp(client, Prop_Send, "m_iAmmo", g_iMissile[client] + g_iMissile_F[client], 4, 11);
 			}
+			return Plugin_Continue;
 		}
 	}
-	return Plugin_Continue;
+	return Plugin_Stop;
 }
 
 void ResetClient(int client)
