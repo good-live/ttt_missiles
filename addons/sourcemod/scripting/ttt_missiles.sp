@@ -427,7 +427,6 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 			return Plugin_Continue;
 		}
 	}
-	return Plugin_Stop;
 }
 
 void ResetClient(int client)
