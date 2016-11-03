@@ -394,40 +394,83 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 {
 	if(TTT_IsClientValid(client) && IsPlayerAlive(client))
 	{
-		bool giveNade = false;
-		if((StrEqual(itemshort, SHORT_NAME_T, false) && g_iPAmount[client] < g_cAmountT.IntValue) || 
-		(StrEqual(itemshort, SHORT_NAME_D, false) && g_iPAmount[client] < g_cAmountD.IntValue) || 
-		(StrEqual(itemshort, SHORT_NAME_I, false) && g_iPAmount[client] < g_cAmountI.IntValue))
+		if (StrEqual(itemshort, SHORT_NAME_T, false))
 		{
-			g_iMissile[client]++;
-			g_iPAmount[client]++;
-			giveNade = true;
-		}else if((StrEqual(itemshort, SHORT_NAMEF_T, false) && g_iPAmount_F[client] < g_cAmountT_F.IntValue) || 
-		(StrEqual(itemshort, SHORT_NAMEF_D, false) && g_iPAmount_F[client] < g_cAmountD_F.IntValue) || 
-		(StrEqual(itemshort, SHORT_NAMEF_I, false) && g_iPAmount_F[client] < g_cAmountI_F.IntValue))
-		{
-			g_iMissile_F[client]++;
-			g_iPAmount_F[client]++;
-			giveNade = true;
+			if(!(g_iPAmount[client] < g_cAmountT.IntValue))
+				return Plugin_Stop;
+			
+			GiveMissile(client);
+			GiveGrenade(client);
 		}
-		
-		if(giveNade)
+		else if(StrEqual(itemshort, SHORT_NAME_D, false))
 		{
-			int AmmoReserve = GetEntProp(client, Prop_Send, "m_iAmmo", 4, 11);
+			if(!(g_iPAmount[client] < g_cAmountD.IntValue))
+				return Plugin_Stop;
 			
-			if (!AmmoReserve)
-			{
-				GivePlayerItem(client, "weapon_hegrenade");
-			}
+			GiveMissile(client);
+			GiveGrenade(client);
+		}
+		else if(StrEqual(itemshort, SHORT_NAME_I, false))
+		{
+			if(!(g_iPAmount[client] < g_cAmountI.IntValue))
+				return Plugin_Stop;
 			
-			if (AmmoReserve)
-			{
-				SetEntProp(client, Prop_Send, "m_iAmmo", g_iMissile[client] + g_iMissile_F[client], 4, 11);
-			}
-			return Plugin_Continue;
+			GiveMissile(client);
+			GiveGrenade(client);
+		}
+		else if(StrEqual(itemshort, SHORT_NAMEF_T, false))
+		{
+			if(!(g_iPAmount[client] < g_cAmountT_F.IntValue))
+				return Plugin_Stop;
+			
+			GiveFollowingMissile(client);
+			GiveGrenade(client);
+		}
+		else if(StrEqual(itemshort, SHORT_NAMEF_D, false))
+		{
+			if(!(g_iPAmount[client] < g_cAmountD_F.IntValue))
+				return Plugin_Stop;
+			
+			GiveFollowingMissile(client);
+			GiveGrenade(client);
+		}
+		else if(StrEqual(itemshort, SHORT_NAMEF_I, false))
+		{
+			if(!(g_iPAmount[client] < g_cAmountI_F.IntValue))
+				return Plugin_Stop;
+			
+			GiveFollowingMissile(client);
+			GiveGrenade(client);
 		}
 	}
 	return Plugin_Continue;
+}
+
+void GiveMissile(int client)
+{
+	g_iMissile[client]++;
+	g_iPAmount[client]++;
+}
+
+void GiveFollowingMissile(int client)
+{
+	g_iMissile_F[client]++;
+	g_iPAmount_F[client]++;
+}
+
+void GiveGrenade(int client)
+{
+	int AmmoReserve = GetEntProp(client, Prop_Send, "m_iAmmo", 4, 11);
+	
+	if (!AmmoReserve)
+	{
+		GivePlayerItem(client, "weapon_hegrenade");
+	}
+	
+	if (AmmoReserve)
+	{
+		SetEntProp(client, Prop_Send, "m_iAmmo", g_iMissile[client] + g_iMissile_F[client], 4, 11);
+	}
 }
 
 void ResetClient(int client)
