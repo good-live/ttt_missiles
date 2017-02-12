@@ -420,7 +420,7 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 		}
 		else if(StrEqual(itemshort, SHORT_NAMEF_T, false))
 		{
-			if(!(g_iPAmount[client] < g_cAmountT_F.IntValue))
+			if(!(g_iPAmount_F[client] < g_cAmountT_F.IntValue))
 				return Plugin_Stop;
 			
 			GiveFollowingMissile(client);
@@ -428,7 +428,7 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 		}
 		else if(StrEqual(itemshort, SHORT_NAMEF_D, false))
 		{
-			if(!(g_iPAmount[client] < g_cAmountD_F.IntValue))
+			if(!(g_iPAmount_F[client] < g_cAmountD_F.IntValue))
 				return Plugin_Stop;
 			
 			GiveFollowingMissile(client);
@@ -436,7 +436,7 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 		}
 		else if(StrEqual(itemshort, SHORT_NAMEF_I, false))
 		{
-			if(!(g_iPAmount[client] < g_cAmountI_F.IntValue))
+			if(!(g_iPAmount_F[client] < g_cAmountI_F.IntValue))
 				return Plugin_Stop;
 			
 			GiveFollowingMissile(client);
