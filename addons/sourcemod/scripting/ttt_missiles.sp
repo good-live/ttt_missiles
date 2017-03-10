@@ -85,7 +85,7 @@ public void OnPluginStart()
 	g_cArc = CreateConVar("ttt_missile_arc", "1", "1 enables the turning arc of missiles, 0 makes turning instant for missiles", _, true, 0.0, true, 1.0);
 	g_cModel = CreateConVar("ttt_missile_model", "models/weapons/w_missile_closed.mdl", "The model of the missile (You need to add it to the donwloadtable yourself)");
 	
-	g_cPriceT = CreateConVar("ttt_missile_price_t", "10000", "Price for the missile for Traitors", _, true, 0.0);
+	g_cPriceT = CreateConVar("ttt_missile_price_t", "7500", "Price for the missile for Traitors", _, true, 0.0);
 	g_cPriceD = CreateConVar("ttt_missile_price_d", "0", "Price for the missile for Detectives", _, true, 0.0);
 	g_cPriceI = CreateConVar("ttt_missile_price_i", "0", "Price for the missile for Innos", _, true, 0.0);
 	g_cPriorityT = CreateConVar("ttt_missile_priority_t", "0", "Priority in shop list for Traitors", _, true, 0.0);
