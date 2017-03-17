@@ -83,7 +83,7 @@ public void OnPluginStart()
 	g_cRadius = CreateConVar("ttt_missile_radius", "350", "Sets the explosive radius of the missiles", _, true, 1.0);
 	g_cSpeed = CreateConVar("ttt_missile_speed", "500.0", "Sets the speed of the missiles", _, true, 300.0 ,true, 3000.0);
 	g_cArc = CreateConVar("ttt_missile_arc", "1", "1 enables the turning arc of missiles, 0 makes turning instant for missiles", _, true, 0.0, true, 1.0);
-	g_cModel = CreateConVar("ttt_missile_model", "models/weapons/w_missile_closed.mdl", "The model of the missile (You need to add it to the donwloadtable yourself)");
+	g_cModel = CreateConVar("ttt_missile_model", "models/props/de_inferno/hr_i/missile/missile_02.mdl", "The model of the missile (You need to add it to the donwloadtable yourself)");
 	
 	g_cPriceT = CreateConVar("ttt_missile_price_t", "7500", "Price for the missile for Traitors", _, true, 0.0);
 	g_cPriceD = CreateConVar("ttt_missile_price_d", "0", "Price for the missile for Detectives", _, true, 0.0);
@@ -138,9 +138,7 @@ public void OnMapStart()
 	
 	AddFileToDownloadsTable("sound/weapons/rpg/rocket1.wav");
 	
-	AddFileToDownloadsTable("materials/models/weapons/w_missile/missile_side.vmt");
-	
-	PrecacheModel("models/weapons/w_missile_closed.mdl");
+	PrecacheModel("models/props/de_inferno/hr_i/missile/missile_02.mdl");
 	
 	PrecacheSound("weapons/rpg/rocket1.wav");
 	PrecacheSound("weapons/hegrenade/explode5.wav");
