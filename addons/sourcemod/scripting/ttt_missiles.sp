@@ -63,6 +63,7 @@ ConVar g_cAmountT = null;
 ConVar g_cAmountD = null;
 ConVar g_cAmountI = null;
 ConVar g_cName = null;
+ConVar g_cDiscount = null;
 
 int g_iPAmount[MAXPLAYERS + 1] =  { 0, ... };
 
@@ -107,6 +108,8 @@ public void OnPluginStart()
 	g_cAmountI_F = CreateConVar("ttt_missile_following_amount_i", "0", "How much following missiles can a innocent buy?");
 	g_cName_F = CreateConVar("ttt_missile_following_name", "Following Missile", "The name of the following missile in the shop");
 	
+	g_cDiscount = CreateConVar("ttt_discount", "0", "Should missile discountable?");
+	
 	HookEvent("player_spawn", Event_Reset);
 	HookEvent("player_death", Event_Reset);
 	
@@ -118,14 +121,14 @@ public void OnAllPluginsLoaded()
 	char longName[32];
 	g_cName.GetString(longName, sizeof(longName));
 	
-	TTT_RegisterCustomItem(SHORT_NAME_T, longName, g_cPriceT.IntValue, TTT_TEAM_TRAITOR, g_cPriorityT.IntValue);
-	TTT_RegisterCustomItem(SHORT_NAME_I, longName, g_cPriceD.IntValue, TTT_TEAM_DETECTIVE, g_cPriorityD.IntValue);
-	TTT_RegisterCustomItem(SHORT_NAME_D, longName, g_cPriceI.IntValue, TTT_TEAM_INNOCENT, g_cPriorityI.IntValue);
+	TTT_RegisterCustomItem(SHORT_NAME_T, longName, g_cPriceT.IntValue, TTT_TEAM_TRAITOR, g_cPriorityT.IntValue, g_cDiscount.BoolValue);
+	TTT_RegisterCustomItem(SHORT_NAME_I, longName, g_cPriceD.IntValue, TTT_TEAM_DETECTIVE, g_cPriorityD.IntValue, g_cDiscount.BoolValue);
+	TTT_RegisterCustomItem(SHORT_NAME_D, longName, g_cPriceI.IntValue, TTT_TEAM_INNOCENT, g_cPriorityI.IntValue, g_cDiscount.BoolValue);
 	
 	g_cName_F.GetString(longName, sizeof(longName));
-	TTT_RegisterCustomItem(SHORT_NAMEF_T, longName, g_cPriceT_F.IntValue, TTT_TEAM_TRAITOR, g_cPriorityT_F.IntValue);
-	TTT_RegisterCustomItem(SHORT_NAMEF_I, longName, g_cPriceD_F.IntValue, TTT_TEAM_DETECTIVE, g_cPriorityD_F.IntValue);
-	TTT_RegisterCustomItem(SHORT_NAMEF_D, longName, g_cPriceI_F.IntValue, TTT_TEAM_INNOCENT, g_cPriorityI_F.IntValue);
+	TTT_RegisterCustomItem(SHORT_NAMEF_T, longName, g_cPriceT_F.IntValue, TTT_TEAM_TRAITOR, g_cPriorityT_F.IntValue, g_cDiscount.BoolValue);
+	TTT_RegisterCustomItem(SHORT_NAMEF_I, longName, g_cPriceD_F.IntValue, TTT_TEAM_DETECTIVE, g_cPriorityD_F.IntValue, g_cDiscount.BoolValue);
+	TTT_RegisterCustomItem(SHORT_NAMEF_D, longName, g_cPriceI_F.IntValue, TTT_TEAM_INNOCENT, g_cPriorityI_F.IntValue, g_cDiscount.BoolValue);
 }
 
 public void OnMapStart()
