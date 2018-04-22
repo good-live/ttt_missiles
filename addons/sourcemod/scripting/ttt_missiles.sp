@@ -71,6 +71,8 @@ int g_iPAmount_C[MAXPLAYERS + 1] =  { 0, ... };
 
 int g_iMissile_C[MAXPLAYERS + 1] =  { 0, ... };
 
+int g_iMissileEnt[MAXPLAYERS +1] = { -1, ... };
+
 ConVar g_cPriceT = null;
 ConVar g_cPriceD = null;
 ConVar g_cPriceI = null;
@@ -174,8 +176,11 @@ public void OnMapStart()
 	g_fMaxWorldLength = GetVectorDistance(WorldMinHull, WorldMaxHull);
 	
 	AddFileToDownloadsTable("sound/weapons/rpg/rocket1.wav");
+	AddFileToDownloadsTable("models/weapons/w_models/w_rocket.mdl");
+	AddFileToDownloadsTable("materials/models/weapons/w_rocketlauncher/w_rocket01.vmt");
+	AddFileToDownloadsTable("materials/models/weapons/w_rocketlauncher/w_rocket01.vtf");
 	
-	PrecacheModel("models/props/de_inferno/hr_i/missile/missile_02.mdl");
+	PrecacheModel("models/weapons/w_models/w_rocket.mdl");
 	
 	PrecacheSound("weapons/rpg/rocket1.wav");
 	PrecacheSound("weapons/hegrenade/explode5.wav");
@@ -268,8 +273,12 @@ public int InitMissile(const char[] output, int caller, int activator, float del
 	NormalizeVector(InitialVec, InitialVec);
 	ScaleVector(InitialVec, g_cSpeed.FloatValue);
 	float InitialAng[3];
+	
 	GetVectorAngles(InitialVec, InitialAng);
 	TeleportEntity(caller, NULL_VECTOR, InitialAng, InitialVec);
+
+	InitialAng[1] + 90.0;
+	DispatchKeyValueVector(caller, "Angles", InitialAng);
 	
 	EmitSoundToAll("weapons/rpg/rocket1.wav", caller, 1, 90);
 	
@@ -284,6 +293,7 @@ public int InitMissile(const char[] output, int caller, int activator, float del
 	SDKHook(caller, SDKHook_StartTouch, OnStartTouch);
 	
 	if(g_iType[NadeOwner] == 2) {
+		g_iMissileEnt[NadeOwner] = caller;
 		SetClientViewEntity(NadeOwner, caller);
 	}
 }
@@ -291,6 +301,10 @@ public int InitMissile(const char[] output, int caller, int activator, float del
 public void MissileThink(const char[] output, int caller, int activator, float delay)
 {
 	int NadeOwner = GetEntPropEnt(caller, Prop_Send, "m_hThrower");
+
+	if(!IsClientValid(NadeOwner)) {
+		return;
+	}
 	
 	// detonate any missiles that stopped for any reason but didn't detonate.
 	float CheckVec[3];
@@ -411,6 +425,18 @@ public void MissileThink(const char[] output, int caller, int activator, float d
 	AcceptEntityInput(caller, "FireUser1");
 }
 
+public void OnGameFrame()
+{
+	for (int i = 1; i <= MaxClients; i++)
+	{
+		if (IsClientConnected(i) && IsClientInGame(i) && IsPlayerAlive(i) && g_iMissileEnt[i] != -1 && IsValidEntity(g_iMissileEnt[i])) {
+			float clientAngles[3];
+			GetClientEyeAngles(i, clientAngles);
+			TeleportEntity(g_iMissileEnt[i], NULL_VECTOR, clientAngles, NULL_VECTOR);
+		}
+	}
+}
+
 public bool DontHitOwnerOrNade(int entity, int contentsMask, any data)
 {
 	int NadeOwner = GetEntPropEnt(data, Prop_Send, "m_hThrower");
@@ -426,6 +452,7 @@ public Action OnStartTouch(int entity, int other)
 	} else if((GetEntProp(other, Prop_Data, "m_nSolidType") != SOLID_NONE) && (!(GetEntProp(other, Prop_Data, "m_usSolidFlags") & FSOLID_NOT_SOLID))) {
 		StopSound(entity, 1, "weapons/rpg/rocket1.wav");
 		CreateExplosion(entity);
+		
 	}
 	return Plugin_Continue;
 }
@@ -439,7 +466,13 @@ void CreateExplosion(int entity)
 	int MissileOwner = GetEntPropEnt(entity, Prop_Send, "m_hThrower");
 	int MissileOwnerTeam = GetEntProp(entity, Prop_Send, "m_iTeamNum");
 	
+	if(g_iType[MissileOwner] == 2) {
+		SetClientViewEntity(MissileOwner, MissileOwner);
+		g_iMissileEnt[MissileOwner] = -1;
+	}
+
 	g_iType[MissileOwner] = -1;
+	
 	
 	int ExplosionIndex = CreateEntityByName("env_explosion");
 	if (ExplosionIndex != -1)
