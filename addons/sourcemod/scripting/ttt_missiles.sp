@@ -11,6 +11,9 @@
 #define SHORT_NAMEF_T "mif_t"
 #define SHORT_NAMEF_D "mif_d"
 #define SHORT_NAMEF_I "mif_i"
+#define SHORT_NAMEC_T "mic_t"
+#define SHORT_NAMEC_D "mic_d"
+#define SHORT_NAMEC_I "mic_i"
 
 #define SOLID_NONE 0
 #define FSOLID_NOT_SOLID 0x0004
@@ -52,6 +55,21 @@ ConVar g_cName_F = null;
 int g_iPAmount_F[MAXPLAYERS + 1] =  { 0, ... };
 
 int g_iMissile_F[MAXPLAYERS + 1] =  { 0, ... };
+
+ConVar g_cPriceT_C = null;
+ConVar g_cPriceD_C = null;
+ConVar g_cPriceI_C = null;
+ConVar g_cPriorityT_C = null;
+ConVar g_cPriorityD_C = null;
+ConVar g_cPriorityI_C = null;
+ConVar g_cAmountT_C = null;
+ConVar g_cAmountD_C = null;
+ConVar g_cAmountI_C = null;
+ConVar g_cName_C = null;
+
+int g_iPAmount_C[MAXPLAYERS + 1] =  { 0, ... };
+
+int g_iMissile_C[MAXPLAYERS + 1] =  { 0, ... };
 
 ConVar g_cPriceT = null;
 ConVar g_cPriceD = null;
@@ -107,6 +125,17 @@ public void OnPluginStart()
 	g_cAmountD_F = CreateConVar("ttt_missile_following_amount_d", "0", "How much following missiles can a detective buy?");
 	g_cAmountI_F = CreateConVar("ttt_missile_following_amount_i", "0", "How much following missiles can a innocent buy?");
 	g_cName_F = CreateConVar("ttt_missile_following_name", "Following Missile", "The name of the following missile in the shop");
+
+	g_cPriceT_C = CreateConVar("ttt_missile_control_price_t", "10000", "Price for the control missile for Traitors", _, true, 0.0);
+	g_cPriceD_C = CreateConVar("ttt_missile_control_price_d", "0", "Price for the control missile for Detectives", _, true, 0.0);
+	g_cPriceI_C = CreateConVar("ttt_missile_control_price_i", "0", "Price for the control missile for Innos", _, true, 0.0);
+	g_cPriorityT_C = CreateConVar("ttt_missile_control_priority_t", "0", "Priority in shop list for Traitors", _, true, 0.0);
+	g_cPriorityD_C = CreateConVar("ttt_missile_control_priority_d", "0", "Priority in shop list for Detectives", _, true, 0.0);
+	g_cPriorityI_C = CreateConVar("ttt_missile_control_priority_i", "0", "Priority in shop list for Innos", _, true, 0.0);
+	g_cAmountT_C = CreateConVar("ttt_missile_control_amount_t", "2", "How much control missiles can a traitor buy?");
+	g_cAmountD_C = CreateConVar("ttt_missile_control_amount_d", "0", "How much control missiles can a detective buy?");
+	g_cAmountI_C = CreateConVar("ttt_missile_control_amount_i", "0", "How much control missiles can a innocent buy?");
+	g_cName_C = CreateConVar("ttt_missile_control_name", "Controling Missile", "The name of the control missile in the shop");
 	
 	g_cDiscount = CreateConVar("ttt_discount", "0", "Should missile discountable?");
 	
@@ -116,7 +145,7 @@ public void OnPluginStart()
 	AutoExecConfig(true);
 }
 
-public void OnAllPluginsLoaded()
+public void OnConfigsExecuted()
 {
 	char longName[32];
 	g_cName.GetString(longName, sizeof(longName));
@@ -129,6 +158,11 @@ public void OnAllPluginsLoaded()
 	TTT_RegisterCustomItem(SHORT_NAMEF_T, longName, g_cPriceT_F.IntValue, TTT_TEAM_TRAITOR, g_cPriorityT_F.IntValue, g_cDiscount.BoolValue);
 	TTT_RegisterCustomItem(SHORT_NAMEF_I, longName, g_cPriceD_F.IntValue, TTT_TEAM_DETECTIVE, g_cPriorityD_F.IntValue, g_cDiscount.BoolValue);
 	TTT_RegisterCustomItem(SHORT_NAMEF_D, longName, g_cPriceI_F.IntValue, TTT_TEAM_INNOCENT, g_cPriorityI_F.IntValue, g_cDiscount.BoolValue);
+
+	g_cName_C.GetString(longName, sizeof(longName));
+	TTT_RegisterCustomItem(SHORT_NAMEC_T, longName, g_cPriceT_C.IntValue, TTT_TEAM_TRAITOR, g_cPriorityT_C.IntValue, g_cDiscount.BoolValue);
+	TTT_RegisterCustomItem(SHORT_NAMEC_I, longName, g_cPriceD_C.IntValue, TTT_TEAM_DETECTIVE, g_cPriorityD_C.IntValue, g_cDiscount.BoolValue);
+	TTT_RegisterCustomItem(SHORT_NAMEC_D, longName, g_cPriceI_C.IntValue, TTT_TEAM_INNOCENT, g_cPriorityI_C.IntValue, g_cDiscount.BoolValue);
 }
 
 public void OnMapStart()
@@ -169,17 +203,20 @@ public int InitMissile(const char[] output, int caller, int activator, float del
 	if (!IsClientValid(NadeOwner))
 		return;
 	
-	if ((!g_iMissile[NadeOwner] && !g_iMissile_F[NadeOwner]) || g_iType[NadeOwner] != -1)
+	if ((!g_iMissile[NadeOwner] && !g_iMissile_F[NadeOwner] && !g_iMissile_C[NadeOwner]) || g_iType[NadeOwner] != -1)
 		return;
 		
-	if(g_iMissile_F[NadeOwner])
-	{
+	if(g_iMissile_C[NadeOwner]) {
+		g_iMissile_C[NadeOwner]--;
+		g_iType[NadeOwner] = 2;
+	}else if(g_iMissile_F[NadeOwner]){
 		g_iMissile_F[NadeOwner]--;
 		g_iType[NadeOwner] = 1;
 	}else{
 		g_iMissile[NadeOwner]--;
 		g_iType[NadeOwner] = 0;
 	}
+
 	char sModel[PLATFORM_MAX_PATH];
 	g_cModel.GetString(sModel, sizeof(sModel));
 	// stop the projectile thinking so it doesn't detonate.
@@ -245,6 +282,10 @@ public int InitMissile(const char[] output, int caller, int activator, float del
 	AcceptEntityInput(caller, "FireUser1");
 	
 	SDKHook(caller, SDKHook_StartTouch, OnStartTouch);
+	
+	if(g_iType[NadeOwner] == 2) {
+		SetClientViewEntity(NadeOwner, caller);
+	}
 }
 
 public void MissileThink(const char[] output, int caller, int activator, float delay)
@@ -264,7 +305,7 @@ public void MissileThink(const char[] output, int caller, int activator, float d
 	float NadePos[3];
 	GetEntPropVector(caller, Prop_Send, "m_vecOrigin", NadePos);
 	
-	if (g_iType[NadeOwner] > 0)
+	if (g_iType[NadeOwner] == 1)
 	{
 		float ClosestDistance = g_fMaxWorldLength;
 		float TargetVec[3];
@@ -320,8 +361,53 @@ public void MissileThink(const char[] output, int caller, int activator, float d
 		float FinalAng[3];
 		GetVectorAngles(FinalVec, FinalAng);
 		TeleportEntity(caller, NULL_VECTOR, FinalAng, FinalVec);
+	}else if (g_iType[NadeOwner] == 2){
+
+		float clientAngles[3];
+		float FinalVec[3];
+		float TargetVec[3];
+		GetClientEyeAngles(NadeOwner, clientAngles);
+
+		
+
+		Handle trace = INVALID_HANDLE;
+		trace = TR_TraceRayFilterEx(NadePos, clientAngles, MASK_SOLID, RayType_Infinite, DontHitOwnerOrNade, caller);
+		
+		if (TR_DidHit(trace) == true)
+		{
+			TR_GetEndPosition(FinalVec, trace);
+			
+			MakeVectorFromPoints(NadePos, FinalVec, TargetVec);
+			NormalizeVector(TargetVec, TargetVec);
+			GetVectorAngles(TargetVec, clientAngles);
+			ScaleVector(TargetVec, g_cSpeed.FloatValue * 1.2);
+			TeleportEntity(caller, NULL_VECTOR, clientAngles, TargetVec);
+		}
+		
+		CloseHandle(trace);
+
+/*
+		float clientAngles[3];
+		float missilePos[3];
+		float vecAngle[3];
+		
+		GetClientEyeAngles(NadeOwner, clientAngles);
+		GetEntPropVector(caller, Prop_Send, "m_vecOrigin", missilePos);
+
+		vecAngle[0] = missilePos[0];
+		vecAngle[1] = missilePos[1];
+		vecAngle[2] = missilePos[2];
+
+		GetAngleVectors(vecAngle, vecAngle, NULL_VECTOR, NULL_VECTOR);
+		NormalizeVector(vecAngle, vecAngle);
+		ScaleVector(vecAngle, g_cSpeed.FloatValue / 2);
+		AddVectors(missilePos, vecAngle, missilePos);
+
+		TeleportEntity(caller, NULL_VECTOR, clientAngles, vecAngle);
+		
+		GetEntPropVector(caller, Prop_Send, "m_vecOrigin", missilePos);
+		TeleportEntity(caller, missilePos, clientAngles, NULL_VECTOR);*/
 	}
-	
 	AcceptEntityInput(caller, "FireUser1");
 }
 
@@ -443,6 +529,30 @@ public Action TTT_OnItemPurchased(int client, const char[] itemshort)
 			GiveFollowingMissile(client);
 			GiveGrenade(client);
 		}
+				else if(StrEqual(itemshort, SHORT_NAMEC_T, false))
+		{
+			if(!(g_iPAmount_C[client] < g_cAmountT_C.IntValue))
+				return Plugin_Stop;
+			
+			GiveControlMissile(client);
+			GiveGrenade(client);
+		}
+		else if(StrEqual(itemshort, SHORT_NAMEC_D, false))
+		{
+			if(!(g_iPAmount_C[client] < g_cAmountD_C.IntValue))
+				return Plugin_Stop;
+			
+			GiveControlMissile(client);
+			GiveGrenade(client);
+		}
+		else if(StrEqual(itemshort, SHORT_NAMEC_I, false))
+		{
+			if(!(g_iPAmount_C[client] < g_cAmountI_C.IntValue))
+				return Plugin_Stop;
+			
+			GiveControlMissile(client);
+			GiveGrenade(client);
+		}
 	}
 	return Plugin_Continue;
 }
@@ -451,6 +561,12 @@ void GiveMissile(int client)
 {
 	g_iMissile[client]++;
 	g_iPAmount[client]++;
+}
+
+void GiveControlMissile(int client)
+{
+	g_iMissile_C[client]++;
+	g_iPAmount_C[client]++;
 }
 
 void GiveFollowingMissile(int client)
